@@ -2,12 +2,14 @@ package com.back;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
-public class P141721Application {
+@EnableJpaAuditing
+public class BackApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(P141721Application.class, args);
+        SpringApplication.run(BackApplication.class, args);
     }
 
 }
