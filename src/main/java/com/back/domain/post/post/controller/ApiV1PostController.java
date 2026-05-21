@@ -8,8 +8,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -72,19 +70,33 @@ public class ApiV1PostController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<RsData<PostWriteResBody>> write(@Valid @RequestBody PostWriteReqBody form) {
+    public RsData<PostWriteResBody> write(@Valid @RequestBody PostWriteReqBody form) {
         Post post = postService.write(form.title, form.content);
 
-        return new ResponseEntity<>(
-                new RsData<>(
-                        "201-1",
-                        "%d번 글이 작성되었습니다.".formatted(post.getId()),
-                        new PostWriteResBody(
-                                postService.count(),
-                                new PostDto(post)
-                        )
-                ),
-                HttpStatus.CREATED
+        return new RsData<>(
+                "201-1",
+                "%d번 글이 작성되었습니다.".formatted(post.getId()),
+                new PostWriteResBody(
+                        postService.count(),
+                        new PostDto(post)
+                )
+        );
+    }
+
+    @PatchMapping("/{id}")
+    @Transactional
+    public RsData<PostWriteResBody> update(
+            @PathVariable int id,
+            @Valid @RequestBody PostWriteReqBody form) {
+         Post post = postService.modify(postService.findById(id).get(), form.title, form.content);
+
+        return new RsData<>(
+                "200-1",
+                "%d번 글이 수정되었습니다.".formatted(post.getId()),
+                new PostWriteResBody(
+                        postService.count(),
+                        new PostDto(post)
+                )
         );
     }
 }
