@@ -45,15 +45,16 @@ public class ApiV1PostController {
 
         postService.delete(post);
 
-        return new RsData(
+        return new RsData<>(
                 "200-1",
                 "%d번 글이 삭제되었습니다.".formatted(id)
         );
     }
 
+
     record PostWriteReqBody(
             @NotBlank
-            @Size(min = 2, max = 20)
+            @Size(min = 2, max = 100)
             String title,
             @NotBlank
             @Size(min = 2, max = 5000)
@@ -61,16 +62,24 @@ public class ApiV1PostController {
     ) {
     }
 
+    record PostWriteResBody(
+            long totalCount,
+            PostDto post
+    ) {
+    }
+
     @PostMapping
     @Transactional
-    public RsData<PostDto> write(
-            @Valid @RequestBody PostWriteReqBody  form
-            ) {
+    public RsData<PostWriteResBody> write(@Valid @RequestBody PostWriteReqBody form) {
         Post post = postService.write(form.title, form.content);
 
         return new RsData<>(
                 "200-1",
-                "%d 번 글이 생성되었습니다.".formatted(post.getId())
+                "%d번 글이 생성되었습니다.".formatted(post.getId()),
+                new PostWriteResBody(
+                        postService.count(),
+                        new PostDto(post)
+                )
         );
     }
 }
