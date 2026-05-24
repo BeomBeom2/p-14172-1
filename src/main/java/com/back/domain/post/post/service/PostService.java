@@ -53,4 +53,7 @@ public class PostService {
     public void delete(Post post) {
         postRepository.delete(post);
     }
+
+    public Optional<Post> findLatest() { return postRepository.findFirstByOrderByIdDesc();
+    }
 }
