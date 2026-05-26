@@ -14,8 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -30,7 +30,7 @@ public class ApiV1PostControllerTest {
     private PostService postService;
 
     @Test
-    @DisplayName("글 쓰기")
+    @DisplayName("글 작성")
     void t1() throws Exception {
         ResultActions resultActions = mvc
                 .perform(
@@ -63,9 +63,11 @@ public class ApiV1PostControllerTest {
     @Test
     @DisplayName("글 수정")
     void t2() throws Exception {
+        int id = 1;
+
         ResultActions resultActions = mvc
                 .perform(
-                        put("/api/v1/posts/1")
+                        put("/api/v1/posts/" + id)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
@@ -77,6 +79,39 @@ public class ApiV1PostControllerTest {
                 .andDo(print());
 
         resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("modify"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("200-1"))
+                .andExpect(jsonPath("$.msg").value("%d번 글이 수정되었습니다.".formatted(id)));
+
+
+                Post post = postService.findById(id).get();
+
+                assertThat(post.getTitle()).isEqualTo("제목 new");
+                assertThat(post.getContent()).isEqualTo("내용 new");
+    }
+
+    @Test
+    @DisplayName("글 삭제")
+    void t3() throws Exception {
+        int id = 1;
+
+        ResultActions resultActions = mvc
+                .perform(
+                        delete("/api/v1/posts/" + id)
+                )
+                .andDo(print());
+
+        resultActions
                 .andExpect(status().isOk());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("delete"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("200-1"))
+                .andExpect(jsonPath("$.msg").value("%d번 글이 삭제되었습니다.".formatted(id)));
     }
 }
