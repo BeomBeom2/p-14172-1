@@ -1,5 +1,6 @@
 package com.back.global.globalExceptionHandler;
 
+import com.back.domain.member.member.exception.MemberDuplicateUsernameException;
 import com.back.global.rsData.RsData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,12 +14,23 @@ import java.util.Comparator;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
+
 
 @ControllerAdvice
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
+    @ExceptionHandler(MemberDuplicateUsernameException.class)
+    public ResponseEntity<RsData<Void>> handle(MemberDuplicateUsernameException ex) {
+        return new ResponseEntity<>(
+                new RsData<>(
+                        "409-1",
+                        "%s(은)는 이미 사용중인 username 입니다.".formatted(ex.getMessage())
+                ),
+                CONFLICT
+        );
+    }
+
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<RsData<Void>> handle(NoSuchElementException ex) {
         return new ResponseEntity<>(
