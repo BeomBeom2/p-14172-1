@@ -32,14 +32,12 @@ public class PostService {
         return postRepository.findAll();
     }
 
-    public Post modify(Post post, String title, String content) {
+    public void modify(Post post, String title, String content) {
         post.modify(title, content);
-
-        return post;
     }
 
-    public void writeComment(Post post, String content) {
-        post.addComment(content);
+    public PostComment writeComment(Post post, String content) {
+        return post.addComment(content);
     }
 
     public boolean deleteComment(Post post, PostComment postComment) {
@@ -54,6 +52,11 @@ public class PostService {
         postRepository.delete(post);
     }
 
-    public Optional<Post> findLatest() { return postRepository.findFirstByOrderByIdDesc();
+    public Optional<Post> findLatest() {
+        return postRepository.findFirstByOrderByIdDesc();
+    }
+
+    public void flush() {
+        postRepository.flush();
     }
 }
